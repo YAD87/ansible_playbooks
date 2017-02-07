@@ -1,0 +1,51 @@
+---
+- hosts: myserv
+  sudo: yes
+
+  tasks:
+
+    - name: update sistem
+      apt: update_cache=yes
+
+    - name: Installs soft
+      apt: pkg={{ item.name }} state=present
+      with_items:
+         - name: git
+         - name: unzip
+         - name: sockstat
+         - name: python-pip
+         - name: php5-cli
+         - name: php5-mysql
+         - name: php5-json
+         - name: php5-mcrypt
+         - name: php5-xcache
+         - name: php5-dev
+         - name: php5-cgi
+         - name: php5-curl
+         - name: apache2
+         - name: libapache2-mod-php5
+    
+    - name: restart apache 
+      service: name=apache2 state=restarted enabled=yes  
+          
+ 
+    - name: touch file php
+      shell: cd /var/www/html && touch info.php && echo "<?php phpinfo() ?>" >> info.php
+
+
+    - name: Install mysql
+      apt:
+         name: mysql-server
+         state: present
+ 
+    - name: Change root password
+      shell: mysqladmin -u root password 'devroot'
+
+
+    - name: secure Execute the script
+      script: /etc/ansible/mys.sh
+
+    
+    - name: restart mysql after secure
+      service: name=mysql state=restarted enabled=yes
+
